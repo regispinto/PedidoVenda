@@ -6,8 +6,7 @@ Projeto exemplo desenvolvido com Embarcadero Delphi, utilizando:
 - POO (Programação Orientada a Objetos)
 - FireDAC para acesso a banco de dados MySQL
 - Conexão via arquivo `.ini`
-- Controles visuais com `TStringGrid`, `TEdit`, `TButton`, etc.
-
+  
 ## 🎯 Funcionalidades
 
 - Inserção de produtos no pedido
