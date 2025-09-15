@@ -15,6 +15,6 @@ Projeto exemplo desenvolvido com Embarcadero Delphi, utilizando:
 - Gravação em banco de dados com transação
 - Regras de PK, FK, índices conforme solicitado
 
-## 🎯 Estrutura de pastas
+## 🎯 Estrutura de 'pastas'
  
 <img width="262" height="353" alt="image" src="https://github.com/user-attachments/assets/56ea07aa-b4b3-4d0b-bba1-d1f19894fdd9" />
