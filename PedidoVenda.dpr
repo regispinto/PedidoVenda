@@ -12,7 +12,8 @@ uses
   unClienteDAO in 'Source\DAO\unClienteDAO.pas',
   unClienteController in 'Source\Controller\unClienteController.pas',
   unProdutoDAO in 'Source\DAO\unProdutoDAO.pas',
-  unProdutoController in 'Source\Controller\unProdutoController.pas';
+  unProdutoController in 'Source\Controller\unProdutoController.pas',
+  unPedidoDAO in 'Source\DAO\unPedidoDAO.pas';
 
 {$R *.res}
 

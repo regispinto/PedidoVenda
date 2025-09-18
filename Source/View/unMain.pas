@@ -39,6 +39,7 @@ type
     btnCarregarPedido: TButton;
     btnCancelarPedido: TButton;
     lblNomeCliente: TLabel;
+    lblDescricaoProduto: TLabel;
 
     procedure FormCreate(Sender: TObject);
     procedure btnAcaoProdutoClick(Sender: TObject);
@@ -59,14 +60,16 @@ type
   private
     { Private declarations }
     FController: TPedidoController;
-    FPedido: TPedido;
+    FIndiceItemEmEdicao: Integer;
+    FPedido, Pedido: TPedido;
 
     procedure AtualizarGrid;
     procedure AtualizarTotal;
     procedure BuscarCliente;
     procedure BuscarProduto;
-    procedure EditarItem(Index: Integer);
+    procedure EditarItem;
     procedure SetarCampos(Modo: Integer=0);
+    procedure LimparFormulario;
 
   public
     { Public declarations }
@@ -140,14 +143,27 @@ var
 begin
   ValidarCampos;
 
-  Item := TPedidoItem.Create;
-  Item.CodigoProduto := StrToIntDef(edtCodigoProduto.Text, 0);
-  Item.Quantidade := StrToIntDef(edtQuantidade.Text, 1);
-  Item.ValorUnitario := StrToFloatDef(edtValorUnitario.Text, 0);
-  Item.ValorTotal := Item.Quantidade * Item.ValorUnitario;
-  Item.Descricao := Item.Descricao;
+  case btnAcaoProduto.Tag of
+    1: begin
+         Item := TPedidoItem.Create;
+         Item.CodigoProduto := StrToIntDef(edtCodigoProduto.Text, 0);
+         Item.Quantidade := StrToIntDef(edtQuantidade.Text, 1);
+         Item.ValorUnitario := StrToFloatDef(edtValorUnitario.Text, 0);
+         Item.ValorTotal := Item.Quantidade * Item.ValorUnitario;
+         Item.Descricao := lblDescricaoProduto.Caption;
 
-  FPedido.Itens.Add(Item);
+         FPedido.Itens.Add(Item);
+       end;
+
+    2: begin
+         Item := FPedido.Itens[FIndiceItemEmEdicao];
+         Item.CodigoProduto := StrToIntDef(edtCodigoProduto.Text, 0);
+         Item.Quantidade := StrToIntDef(edtQuantidade.Text, 1);
+         Item.ValorUnitario := StrToFloatDef(edtValorUnitario.Text, 0);
+         Item.ValorTotal := Item.Quantidade * Item.ValorUnitario;
+         Item.Descricao := lblDescricaoProduto.Caption;
+       end;
+  end;
   AtualizarGrid;
   AtualizarTotal;
   SetarCampos(2);
@@ -179,7 +195,10 @@ end;
 procedure TfrmMain.edtCodigoProdutoChange(Sender: TObject);
 begin
   if edtCodigoProduto.Text = EmptyStr then
+  begin
+    lblDescricaoProduto.Caption := EmptyStr;
     edtValorUnitario.Clear;
+  end;
 end;
 
 procedure TfrmMain.edtCodigoProdutoExit(Sender: TObject);
@@ -248,36 +267,67 @@ end;
 procedure TfrmMain.btnGravarPedidoClick(Sender: TObject);
 begin
   try
+    FController.ValidarPedido(edtCodigoCliente.Text, FPedido);
+
     FPedido.CodigoCliente := StrToIntDef(edtCodigoCliente.Text, 0);
-    FPedido.Data := Date;
+    FPedido.Emissao := Date;
 
     if FController.GravarPedido(FPedido) then
-      ShowMessage('Pedido gravado com sucesso!');
+    begin
+      Application.MessageBox('Pedido gravado com sucesso', 'Aviso', MB_ICONINFORMATION + MB_OK);
+      LimparFormulario;
+    end;
   except
     on E: Exception do
-      ShowMessage('Erro ao gravar pedido: ' + E.Message);
+      Application.MessageBox(PChar(E.Message), 'Atenção', MB_ICONWARNING + MB_OK);
   end;
 end;
 
 procedure TfrmMain.btnCarregarPedidoClick(Sender: TObject);
+var
+  Controller: TPedidoController;
+  NumeroPedido: Integer;
+  Numero: string;
+
 begin
-  //
+  if not InputQuery('Buscar Pedido', 'Informe o número do pedido:', Numero) then
+    Exit;
+
+  if not TryStrToInt(Numero, NumeroPedido) then
+  begin
+    Application.MessageBox('Número inválido', 'Aviso', MB_ICONINFORMATION + MB_OK);
+    Exit;
+  end;
+
+  try
+    Controller := TPedidoController.Create;
+    try
+      Pedido := Controller.BuscarPedidoPorNumero(NumeroPedido);
+
+      // Atualiza os campos do formulário
+      edtCodigoCliente.Text := Pedido.CodigoCliente.ToString;
+      lblTotalPedido.Caption := FormatFloat('R$ #,##0.00', Pedido.ValorTotal);
+
+      // Limpa e atualiza a grid
+      FPedido := Pedido;
+      AtualizarGrid;
+      AtualizarTotal;
+      SetarCampos(2);
+
+    finally
+      Controller.Free;
+
+    end;
+
+  except
+    on E: Exception do
+      Application.MessageBox(PChar('Erro ao pesquisa pedido' + E.Message), 'Atenção', MB_ICONWARNING + MB_OK);
+  end;
 end;
 
 procedure TfrmMain.btnCancelarPedidoClick(Sender: TObject);
-var
-  i: Integer;
-
 begin
-  SetarCampos;
-  if Assigned(FPedido) then
-  FPedido.Itens.Clear;
-
-  gridItens.RowCount := 2;
-  for i := 1 to gridItens.RowCount - 1 do
-    gridItens.Rows[i].Clear;
-
-  AtualizarTotal;
+  LimparFormulario;
 end;
 
 procedure TfrmMain.gridItensKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -303,7 +353,8 @@ begin
     VK_RETURN: begin
                  if (Index >= 0) and (Index < FPedido.Itens.Count) then
                  begin
-                   EditarItem(Index + 1);
+                   FIndiceItemEmEdicao := Index;
+                   EditarItem;
                    AtualizarGrid;
                  end;
                end;
@@ -356,6 +407,7 @@ begin
     Produto := Controller.ObterProdutoPorCodigo(Codigo);
     if Assigned(Produto) then
     begin
+      lblDescricaoProduto.Caption := Produto.Descricao;
       edtValorUnitario.Text := FormatFloat('#,##0.00', Produto.PrecoVenda);
       edtQuantidade.SetFocus;
       Produto.Free;
@@ -371,12 +423,29 @@ begin
   end;
 end;
 
-procedure TfrmMain.EditarItem(Index: Integer);
+procedure TfrmMain.EditarItem;
 begin
-  edtCodigoProduto.Text := gridItens.Cells[0, Index];
-  edtQuantidade.Text := gridItens.Cells[2, Index];
-  edtValorUnitario.Text := gridItens.Cells[3, Index];
+  edtCodigoProduto.Text := gridItens.Cells[0, FIndiceItemEmEdicao + 1];
+  lblDescricaoProduto.Caption := gridItens.Cells[1, FIndiceItemEmEdicao + 1];
+  edtQuantidade.Text := gridItens.Cells[2, FIndiceItemEmEdicao + 1];
+  edtValorUnitario.Text := gridItens.Cells[3, FIndiceItemEmEdicao + 1];
   SetarCampos(3);
+end;
+
+procedure TfrmMain.LimparFormulario;
+var
+  i: Integer;
+
+begin
+  SetarCampos;
+  if Assigned(FPedido) then
+  FPedido.Itens.Clear;
+
+  gridItens.RowCount := 2;
+  for i := 1 to gridItens.RowCount - 1 do
+    gridItens.Rows[i].Clear;
+
+  AtualizarTotal;
 end;
 
 procedure TfrmMain.SetarCampos(Modo: Integer=0);
@@ -409,6 +478,8 @@ begin
               end;
 
           2: begin
+               edtCodigoProduto.Enabled := True;
+
                edtCodigoProduto.Clear;
                edtQuantidade.Clear;
                edtValorUnitario.Clear;

@@ -7,19 +7,24 @@ object frmMain: TfrmMain
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
+  Font.Height = -11
+  Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
   Position = poScreenCenter
   OnCreate = FormCreate
   OnShow = FormShow
-  TextHeight = 15
+  TextHeight = 13
   object pnlDados: TPanel
+    AlignWithMargins = True
     Left = 0
-    Top = 0
+    Top = 1
     Width = 943
-    Height = 90
+    Height = 129
+    Margins.Left = 0
+    Margins.Top = 1
+    Margins.Right = 0
+    Margins.Bottom = 1
     Align = alTop
     BorderStyle = bsSingle
     Color = clSilver
@@ -27,45 +32,88 @@ object frmMain: TfrmMain
     TabOrder = 0
     ExplicitWidth = 941
     object lblCodigoCliente: TLabel
-      Left = 16
+      Left = 25
       Top = 15
-      Width = 99
-      Height = 15
-      Caption = 'C'#243'digo do Cliente:'
+      Width = 109
+      Height = 14
+      Caption = 'C'#243'digo do Cliente'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
     object lblCodigoProduto: TLabel
       Left = 16
       Top = 48
-      Width = 105
-      Height = 15
-      Caption = 'C'#243'digo do Produto:'
+      Width = 118
+      Height = 14
+      Caption = 'C'#243'digo do Produto'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
     object lblQuantidade: TLabel
-      Left = 244
-      Top = 48
-      Width = 65
-      Height = 15
-      Caption = 'Quantidade:'
+      Left = 63
+      Top = 81
+      Width = 71
+      Height = 14
+      Caption = 'Quantidade'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
     object lblValorUnitario: TLabel
-      Left = 394
-      Top = 48
-      Width = 74
-      Height = 15
-      Caption = 'Valor Unit'#225'rio:'
+      Left = 260
+      Top = 81
+      Width = 83
+      Height = 14
+      Caption = 'Valor Unit'#225'rio'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
     object lblNomeCliente: TLabel
-      Left = 244
-      Top = 16
-      Width = 83
-      Height = 15
+      Left = 260
+      Top = 15
+      Width = 90
+      Height = 14
       Caption = 'lblNomeCliente'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object lblDescricaoProduto: TLabel
+      Left = 260
+      Top = 48
+      Width = 122
+      Height = 14
+      Caption = 'lblDescricaoProduto'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
     object edtCodigoProduto: TEdit
-      Left = 127
-      Top = 45
+      Left = 142
+      Top = 46
       Width = 100
-      Height = 23
+      Height = 21
       Alignment = taRightJustify
       TabOrder = 1
       OnChange = edtCodigoProdutoChange
@@ -73,10 +121,10 @@ object frmMain: TfrmMain
       OnKeyDown = edtCodigoProdutoKeyDown
     end
     object edtCodigoCliente: TEdit
-      Left = 126
-      Top = 12
+      Left = 142
+      Top = 13
       Width = 100
-      Height = 23
+      Height = 21
       Alignment = taRightJustify
       NumbersOnly = True
       TabOrder = 0
@@ -85,45 +133,52 @@ object frmMain: TfrmMain
       OnKeyDown = edtCodigoClienteKeyDown
     end
     object edtQuantidade: TEdit
-      Left = 314
-      Top = 45
-      Width = 60
-      Height = 23
+      Left = 142
+      Top = 78
+      Width = 100
+      Height = 21
       Alignment = taRightJustify
       TabOrder = 2
       OnKeyDown = edtQuantidadeKeyDown
     end
     object edtValorUnitario: TEdit
-      Left = 475
-      Top = 45
+      Left = 353
+      Top = 78
       Width = 80
-      Height = 23
+      Height = 21
       Alignment = taRightJustify
       TabOrder = 3
       OnKeyDown = edtValorUnitarioKeyDown
     end
     object btnAcaoProduto: TButton
-      Left = 584
-      Top = 44
-      Width = 120
+      Left = 454
+      Top = 76
+      Width = 134
       Height = 25
       Caption = 'Inserir Produto'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 4
       OnClick = btnAcaoProdutoClick
     end
   end
   object gridItens: TStringGrid
     Left = 0
-    Top = 90
+    Top = 131
     Width = 943
-    Height = 350
+    Height = 309
     Align = alClient
     FixedCols = 0
     RowCount = 2
     Options = [goEditing, goTabs, goRowSelect, goThumbTracking]
     TabOrder = 1
     OnKeyDown = gridItensKeyDown
-    ExplicitTop = 87
+    ExplicitWidth = 941
+    ExplicitHeight = 301
   end
   object pnlTotal: TPanel
     AlignWithMargins = True
@@ -166,8 +221,8 @@ object frmMain: TfrmMain
     ExplicitTop = 471
     ExplicitWidth = 941
     object btnGravarPedido: TButton
-      Left = 0
-      Top = 2
+      Left = 16
+      Top = 3
       Width = 120
       Height = 30
       Caption = 'Gravar Pedido'
@@ -175,7 +230,7 @@ object frmMain: TfrmMain
       OnClick = btnGravarPedidoClick
     end
     object btnCarregarPedido: TButton
-      Left = 144
+      Left = 160
       Top = 2
       Width = 120
       Height = 30
@@ -184,7 +239,7 @@ object frmMain: TfrmMain
       OnClick = btnCarregarPedidoClick
     end
     object btnCancelarPedido: TButton
-      Left = 284
+      Left = 300
       Top = 2
       Width = 120
       Height = 30

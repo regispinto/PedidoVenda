@@ -140,6 +140,7 @@
         <DCCReference Include="Source\Controller\unClienteController.pas"/>
         <DCCReference Include="Source\DAO\unProdutoDAO.pas"/>
         <DCCReference Include="Source\Controller\unProdutoController.pas"/>
+        <DCCReference Include="Source\DAO\unPedidoDAO.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -21,6 +21,7 @@ implementation
 
 class constructor TDAOConexao.Create;
 var
+  DriverLink: TFDPhysMySQLDriverLink;
   PathIni: string;
   Ini: TIniFile;
 
@@ -41,6 +42,12 @@ begin
       FConnection.Params.Values['Server'] := Ini.ReadString('DB', 'Server', '');
       FConnection.Params.Values['Port'] := Ini.ReadString('DB', 'Port', '3306');
       FConnection.Params.Values['UseSSL'] := 'Disabled';
+
+
+      // Cria o driver dinamicamente
+      DriverLink := TFDPhysMySQLDriverLink.Create(nil);
+      DriverLink.VendorLib := Ini.ReadString('DB', 'LibraryPath', '');
+
       FConnection.Connected := True;
     finally
       Ini.Free;

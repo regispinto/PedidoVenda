@@ -9,16 +9,17 @@ type
   TPedido = class
   private
     FNumero: Integer;
-    FData: TDateTime;
+    FEmissao: TDateTime;
     FCodigoCliente: Integer;
     FValorTotal: Currency;
     FItens: TObjectList<TPedidoItem>;
+
   public
     constructor Create;
     destructor Destroy; override;
 
     property Numero: Integer read FNumero write FNumero;
-    property Data: TDateTime read FData write FData;
+    property Emissao: TDateTime read FEmissao write FEmissao;
     property CodigoCliente: Integer read FCodigoCliente write FCodigoCliente;
     property ValorTotal: Currency read FValorTotal write FValorTotal;
     property Itens: TObjectList<TPedidoItem> read FItens;
