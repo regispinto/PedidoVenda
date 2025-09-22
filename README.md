@@ -17,5 +17,5 @@ Projeto exemplo desenvolvido com Embarcadero Delphi, utilizando:
 
 ## 🎯 Estrutura de pastas
  
-<img width="286" height="221" alt="image" src="https://github.com/user-attachments/assets/96c9ee6f-80d5-4082-980c-b1d0566f2727" />
+<img width="352" height="432" alt="image" src="https://github.com/user-attachments/assets/0e8502eb-af25-41d5-b793-5b3cf293e524" />
 
