@@ -3,15 +3,15 @@ unit unPedidoDAO;
 interface
 
 uses
-  System.SysUtils, Data.DB, Vcl.Dialogs, FireDAC.Comp.Client, FireDAC.DApt, FireDAC.Stan.Param, FireDAC.Phys.MySQL,
+  System.SysUtils, Data.DB, Vcl.Dialogs, Vcl.Forms, Winapi.Windows, FireDAC.Comp.Client, FireDAC.DApt, FireDAC.Stan.Param, FireDAC.Phys.MySQL,
   unPedido, unPedidoItem;
 
 type
   TPedidoDAO = class
   private
-
   public
     procedure SalvarPedido(APedido: TPedido);
+    procedure ExcluirPedido(APedido: TPedido);
 
     function CarregarPedido(NumeroPedido: Integer): TPedido;
   end;
@@ -37,7 +37,9 @@ begin
     Qry.SQL.Add('SELECT COUNT(*) FROM pedidos WHERE numero = :numero');
     Qry.ParamByName('numero').AsInteger := APedido.Numero;
     Qry.Open;
+
     PedidoExiste := Qry.Fields[0].AsInteger > 0;
+
     Qry.Close;
 
     case PedidoExiste of
@@ -123,7 +125,7 @@ begin
     Qry.Open;
 
     if Qry.IsEmpty then
-      raise Exception.CreateFmt('Pedido nº %d não encontrado.', [NumeroPedido]);
+      raise Exception.CreateFmt('Pedido nº %d não localizado', [NumeroPedido]);
 
     Pedido.Numero := Qry.FieldByName('numero').AsInteger;
     Pedido.Emissao := Qry.FieldByName('data_emissao').AsDateTime;
@@ -158,6 +160,48 @@ begin
   finally
     Qry.Free;
 
+  end;
+end;
+
+procedure TPedidoDAO.ExcluirPedido(APedido: TPedido);
+var
+  Qry: TFDQuery;
+
+begin
+  if Assigned(APedido) then
+  begin
+    Qry := TFDQuery.Create(nil);
+    try
+      try
+        Qry.Connection := TDAOConexao.GetConnection;
+
+        // Exclui os produtos vinculados ao pedido
+        Qry.SQL.Clear;
+        Qry.SQL.Add('DELETE from pedido_itens');
+        Qry.SQL.Add('where numero_pedido = :pPedido');
+        Qry.ParamByName('pPedido').AsInteger := APedido.Numero;
+        Qry.ExecSQL;
+      except
+        raise Exception.CreateFmt('Erro ao excluir os itens do pedido nº %d', [APedido.Numero]);
+
+      end;
+
+      // Exclui o pedido
+      try
+        Qry.SQL.Clear;
+        Qry.SQL.Add('DELETE FROM pedidos');
+        Qry.SQL.Add('WHERE numero = :pNumero');
+        Qry.ParamByName('pNumero').AsInteger := APedido.Numero;
+        Qry.ExecSQL;
+
+      except
+        raise Exception.CreateFmt('Erro ao excluir o pedido nº %d', [APedido.Numero]);
+
+      end;
+    finally
+      Qry.Free;
+
+    end;
   end;
 end;
 

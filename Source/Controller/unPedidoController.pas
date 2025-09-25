@@ -15,8 +15,9 @@ type
   public
     procedure ValidarPedido(Cliente: string; APedido: TPedido);
 
-    function GravarPedido(APedido: TPedido): Boolean;
     function BuscarPedidoPorNumero(Numero: Integer): TPedido;
+    function GravarPedido(APedido: TPedido): Boolean;
+    function ExcluirPedido(APedido: TPedido): Boolean;
   end;
 
 implementation
@@ -33,6 +34,20 @@ begin
   // Validar itens do pedido
   if not Assigned(APedido) or (APedido.Itens.Count = 0) then
     raise Exception.Create('Adicione pelo menos um item ao pedido.');
+end;
+
+function TPedidoController.BuscarPedidoPorNumero(Numero: Integer): TPedido;
+var
+  DAO: TPedidoDAO;
+
+begin
+  DAO := TPedidoDAO.Create();
+  try
+    Result := DAO.CarregarPedido(Numero);
+  finally
+    DAO.Free;
+
+  end;
 end;
 
 function TPedidoController.GravarPedido(APedido: TPedido): Boolean;
@@ -61,18 +76,32 @@ begin
   end;
 end;
 
-function TPedidoController.BuscarPedidoPorNumero(Numero: Integer): TPedido;
+function TPedidoController.ExcluirPedido(APedido: TPedido): Boolean;
 var
-  DAO: TPedidoDAO;
+  Conn: TFDConnection;
+  PedidoDAO: TPedidoDAO;
 
 begin
-  DAO := TPedidoDAO.Create();
-  try
-    Result := DAO.CarregarPedido(Numero);
-  finally
-    DAO.Free;
+  Conn := TDAOConexao.GetConnection;
+  Conn.StartTransaction;
 
+  try
+    PedidoDAO := TPedidoDAO.Create();
+    try
+      PedidoDAO.ExcluirPedido(APedido);
+    finally
+      PedidoDAO.Free;
+    end;
+
+    Conn.Commit;
+
+    Result := True;
+  except
+    Conn.Rollback;
+    raise;
   end;
 end;
+
+
 
 end.

@@ -56,6 +56,12 @@ type
     procedure edtValorUnitarioKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure btnCarregarPedidoClick(Sender: TObject);
     procedure btnCancelarPedidoClick(Sender: TObject);
+    procedure gridItensDblClick(Sender: TObject);
+    procedure edtCodigoClienteKeyPress(Sender: TObject; var Key: Char);
+    procedure edtCodigoProdutoKeyPress(Sender: TObject; var Key: Char);
+    procedure edtQuantidadeKeyPress(Sender: TObject; var Key: Char);
+    procedure edtValorUnitarioKeyPress(Sender: TObject; var Key: Char);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 
   private
     { Private declarations }
@@ -70,6 +76,7 @@ type
     procedure EditarItem;
     procedure SetarCampos(Modo: Integer=0);
     procedure LimparFormulario;
+    procedure PesquisarPedido;
 
   public
     { Public declarations }
@@ -102,6 +109,18 @@ begin
   gridItens.ColWidths[2] := 80;
   gridItens.ColWidths[3] := 100;
   gridItens.ColWidths[4] := 100;
+end;
+
+procedure TfrmMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if (Key = Ord('L')) and (ssCtrl in Shift) then
+  begin
+    if Application.MessageBox('Deseja cancelar os lançamentos já realizados?', 'Aviso', MB_ICONQUESTION + MB_YESNO) = ID_YES then
+    begin
+      LimparFormulario;
+      Key := 0;
+    end;
+  end;
 end;
 
 procedure TfrmMain.FormShow(Sender: TObject);
@@ -171,10 +190,8 @@ end;
 
 procedure TfrmMain.edtCodigoClienteChange(Sender: TObject);
 begin
-  if edtCodigoCliente.Text = EmptyStr then
-  begin
-    lblNomeCliente.Caption := EmptyStr;
-  end;
+  if (btnAcaoProduto.Tag <> 0) and (Trim(edtCodigoCliente.Text) = '') then
+    LimparFormulario;
 end;
 
 procedure TfrmMain.edtCodigoClienteExit(Sender: TObject);
@@ -190,6 +207,12 @@ begin
     BuscarCliente;
     Key := 0;
   end;
+end;
+
+procedure TfrmMain.edtCodigoClienteKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in ['0'..'9', #8]) then
+    Key := #0;
 end;
 
 procedure TfrmMain.edtCodigoProdutoChange(Sender: TObject);
@@ -216,6 +239,12 @@ begin
   end;
 end;
 
+procedure TfrmMain.edtCodigoProdutoKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in ['0'..'9', #8]) then
+    Key := #0;
+end;
+
 procedure TfrmMain.edtQuantidadeKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if Key = VK_RETURN then
@@ -225,6 +254,12 @@ begin
   end;
 end;
 
+procedure TfrmMain.edtQuantidadeKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in ['0'..'9', #8]) then
+    Key := #0;
+end;
+
 procedure TfrmMain.edtValorUnitarioKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if Key = VK_RETURN then
@@ -232,6 +267,12 @@ begin
     Key := 0;
     Perform(WM_NEXTDLGCTL, 0, 0);
   end;
+end;
+
+procedure TfrmMain.edtValorUnitarioKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in ['0'..'9', #8, ',']) then
+    Key := #0;
 end;
 
 procedure TfrmMain.AtualizarGrid;
@@ -284,6 +325,29 @@ begin
 end;
 
 procedure TfrmMain.btnCarregarPedidoClick(Sender: TObject);
+begin
+  PesquisarPedido;
+end;
+
+procedure TfrmMain.btnCancelarPedidoClick(Sender: TObject);
+begin
+  PesquisarPedido;
+
+  if (FPedido.Numero > 0) and (Application.MessageBox(PChar('Deseja excluir o pedido ' + FPedido.Numero.ToString + '?'), 'Atenção', MB_ICONWARNING + MB_YESNO) = ID_YES) then
+  begin
+    try
+      if FController.ExcluirPedido(FPedido) then
+        Application.MessageBox('Pedido excluído com sucesso', 'Aviso', MB_ICONINFORMATION + MB_OK);
+    except
+      on E: Exception do
+        Application.MessageBox(PChar(E.Message), 'Atenção', MB_ICONWARNING + MB_OK);
+    end;
+  end;
+
+  LimparFormulario;
+end;
+
+procedure TfrmMain.PesquisarPedido;
 var
   Controller: TPedidoController;
   NumeroPedido: Integer;
@@ -299,65 +363,53 @@ begin
     Exit;
   end;
 
+  Controller := TPedidoController.Create;
   try
-    Controller := TPedidoController.Create;
-    try
-      Pedido := Controller.BuscarPedidoPorNumero(NumeroPedido);
+    Pedido := Controller.BuscarPedidoPorNumero(NumeroPedido);
 
-      // Atualiza os campos do formulário
-      edtCodigoCliente.Text := Pedido.CodigoCliente.ToString;
-      lblTotalPedido.Caption := FormatFloat('R$ #,##0.00', Pedido.ValorTotal);
+    // Atualiza os campos do formulário
+    edtCodigoCliente.Text := Pedido.CodigoCliente.ToString;
+    lblTotalPedido.Caption := FormatFloat('R$ #,##0.00', Pedido.ValorTotal);
 
-      // Limpa e atualiza a grid
-      FPedido := Pedido;
-      AtualizarGrid;
-      AtualizarTotal;
-      SetarCampos(2);
+    // Limpa e atualiza a grid
+    FPedido := Pedido;
+    AtualizarGrid;
+    AtualizarTotal;
+    SetarCampos(2);
 
-    finally
-      Controller.Free;
+  finally
+    Controller.Free;
 
-    end;
-
-  except
-    on E: Exception do
-      Application.MessageBox(PChar('Erro ao pesquisa pedido' + E.Message), 'Atenção', MB_ICONWARNING + MB_OK);
   end;
 end;
 
-procedure TfrmMain.btnCancelarPedidoClick(Sender: TObject);
+procedure TfrmMain.gridItensDblClick(Sender: TObject);
 begin
-  LimparFormulario;
+  if (gridItens.Row - 1 >= 0) and (gridItens.Row - 1 < FPedido.Itens.Count) then
+  begin
+    FIndiceItemEmEdicao := gridItens.Row - 1;
+    EditarItem;
+    AtualizarGrid;
+  end;
 end;
 
 procedure TfrmMain.gridItensKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-var
-  Index: Integer;
-
 begin
-  Index := gridItens.Row - 1;
-
-  case Key of
-    VK_DELETE: begin
-                 if (Index >= 0) and (Index < FPedido.Itens.Count) then
-                 begin
+  if (gridItens.Row - 1 >= 0) and (gridItens.Row - 1 < FPedido.Itens.Count) then
+  begin
+    case Key of
+      VK_DELETE: begin
                    if Application.MessageBox('Deseja remover este item?', 'Aviso', MB_ICONQUESTION + MB_YESNO) = ID_YES then
                    begin
-                     FPedido.Itens.Delete(Index);
+                     FPedido.Itens.Delete(gridItens.Row - 1);
                      AtualizarGrid;
                      AtualizarTotal;
                    end;
                  end;
-               end;
 
-    VK_RETURN: begin
-                 if (Index >= 0) and (Index < FPedido.Itens.Count) then
-                 begin
-                   FIndiceItemEmEdicao := Index;
-                   EditarItem;
-                   AtualizarGrid;
-                 end;
-               end;
+      VK_RETURN: gridItensDblClick(Sender);
+    end;
+    AtualizarGrid;
   end;
 end;
 
@@ -438,8 +490,18 @@ var
 
 begin
   SetarCampos;
+
   if Assigned(FPedido) then
-  FPedido.Itens.Clear;
+  begin
+    // Limpa os dados do Pedido
+    FPedido.Numero := 0;
+    FPedido.Emissao := Date;
+    FPedido.CodigoCliente := 0;
+    FPedido.ValorTotal := 0;
+
+    // Limpa os itens do Pedido
+    FPedido.Itens.Clear;
+  end;
 
   gridItens.RowCount := 2;
   for i := 1 to gridItens.RowCount - 1 do
@@ -453,12 +515,19 @@ begin
   frmMain.Caption := 'Pedidos Vendas';
 
   btnAcaoProduto.Caption := 'Inserir Produto';
+
+  btnCarregarPedido.Visible := True;
+  btnCancelarPedido.Visible := True;
+
   btnAcaoProduto.Tag := 0;
 
   case Modo of
     0: begin
          edtCodigoCliente.Enabled := True;
          edtCodigoProduto.Enabled := True;
+
+         lblNomeCliente.Caption := EmptyStr;
+         lblDescricaoProduto.Caption := EmptyStr;
 
          edtCodigoCliente.Clear;
          edtCodigoProduto.Clear;
@@ -470,12 +539,16 @@ begin
 
  1..2: begin
          frmMain.Caption := frmMain.Caption + ' - [Modo Inclusão]';
+
+         btnCarregarPedido.Visible := False;
+         btnCancelarPedido.Visible := False;
+
          btnAcaoProduto.Tag := 1;
 
          case Modo of
            1: begin
-                edtCodigoCliente.Enabled := False;
-              end;
+                edtCodigoCliente.Enabled := True;
+               end;
 
           2: begin
                edtCodigoProduto.Enabled := True;
@@ -493,6 +566,10 @@ begin
          frmMain.Caption := frmMain.Caption + ' - [Modo Alteração]';
 
          btnAcaoProduto.Caption := 'Atualizar Pedido';
+
+         btnCarregarPedido.Visible := False;
+         btnCancelarPedido.Visible := False;
+
          btnAcaoProduto.Tag := 2;
 
          edtCodigoCliente.Enabled := False;

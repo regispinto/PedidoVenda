@@ -13,6 +13,7 @@ object frmMain: TfrmMain
   KeyPreview = True
   Position = poScreenCenter
   OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
   OnShow = FormShow
   TextHeight = 13
   object pnlDados: TPanel
@@ -119,6 +120,7 @@ object frmMain: TfrmMain
       OnChange = edtCodigoProdutoChange
       OnExit = edtCodigoProdutoExit
       OnKeyDown = edtCodigoProdutoKeyDown
+      OnKeyPress = edtCodigoProdutoKeyPress
     end
     object edtCodigoCliente: TEdit
       Left = 142
@@ -126,11 +128,11 @@ object frmMain: TfrmMain
       Width = 100
       Height = 21
       Alignment = taRightJustify
-      NumbersOnly = True
       TabOrder = 0
       OnChange = edtCodigoClienteChange
       OnExit = edtCodigoClienteExit
       OnKeyDown = edtCodigoClienteKeyDown
+      OnKeyPress = edtCodigoClienteKeyPress
     end
     object edtQuantidade: TEdit
       Left = 142
@@ -140,6 +142,7 @@ object frmMain: TfrmMain
       Alignment = taRightJustify
       TabOrder = 2
       OnKeyDown = edtQuantidadeKeyDown
+      OnKeyPress = edtQuantidadeKeyPress
     end
     object edtValorUnitario: TEdit
       Left = 353
@@ -149,6 +152,7 @@ object frmMain: TfrmMain
       Alignment = taRightJustify
       TabOrder = 3
       OnKeyDown = edtValorUnitarioKeyDown
+      OnKeyPress = edtValorUnitarioKeyPress
     end
     object btnAcaoProduto: TButton
       Left = 454
@@ -176,6 +180,7 @@ object frmMain: TfrmMain
     RowCount = 2
     Options = [goEditing, goTabs, goRowSelect, goThumbTracking]
     TabOrder = 1
+    OnDblClick = gridItensDblClick
     OnKeyDown = gridItensKeyDown
     ExplicitWidth = 941
     ExplicitHeight = 301
@@ -231,7 +236,7 @@ object frmMain: TfrmMain
     end
     object btnCarregarPedido: TButton
       Left = 160
-      Top = 2
+      Top = 3
       Width = 120
       Height = 30
       Caption = 'Carregar Pedido'
